@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>작업물 전체보기 — DEVORA</title>
+<link rel="icon" type="image/svg+xml" href="symbol.svg">
+<style>
+  :root {
+    --bg:#f0f7ff; --bg2:#e2effc; --card:#ffffff;
+    --green:#1565C0; --green-dim:rgba(21,101,192,0.08);
+    --text:#0d1b2a; --muted:#5a7a9a; --border:rgba(21,101,192,0.12);
+    --sub:#8aa8c8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:100;background:rgba(240,247,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:16px 40px;display:flex;align-items:center;justify-content:space-between;}
+  .nav-logo{cursor:pointer;}
+  .nav-right{display:flex;align-items:center;gap:12px;}
+  .nav-status{font-size:13px;color:var(--muted);text-decoration:none;padding:8px 16px;border-radius:20px;border:1px solid var(--border);transition:all 0.2s;}
+  .nav-status:hover{color:var(--green);border-color:var(--green);}
+  .nav-cta{background:var(--green);color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px;transition:all 0.2s;}
+  .nav-cta:hover{background:#1254a8;transform:translateY(-1px);}
+
+  /* HEADER */
+  .page-header{padding:80px 40px 48px;text-align:center;}
+  .page-label{font-size:11px;letter-spacing:3px;color:var(--green);font-weight:600;text-transform:uppercase;margin-bottom:16px;}
+  .page-title{font-size:48px;font-weight:800;color:var(--text);margin-bottom:16px;letter-spacing:-1px;}
+  .page-sub{color:var(--muted);font-size:16px;}
+
+  /* FILTER */
+  .filter-wrap{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:48px;}
+  .filter-tab{padding:10px 24px;border-radius:50px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:14px;font-weight:500;cursor:pointer;transition:all 0.25s;font-family:inherit;}
+  .filter-tab:hover{border-color:var(--green);color:var(--green);}
+  .filter-tab.active{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 4px 16px rgba(21,101,192,0.28);}
+
+  /* GRID */
+  .container{max-width:1200px;margin:0 auto;padding:0 24px;}
+  .portfolio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;margin-bottom:80px;}
+
+  /* CARD */
+  .portfolio-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all 0.3s;}
+  .portfolio-card:hover{transform:translateY(-5px);border-color:rgba(21,101,192,0.25);box-shadow:0 12px 40px rgba(21,101,192,0.13);}
+  .card-thumb{height:180px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+  .card-thumb img{width:100%;height:100%;object-fit:cover;}
+  .card-thumb-icon{font-size:52px;}
+  .card-badge{position:absolute;top:12px;left:12px;background:rgba(255,255,255,0.92);color:var(--green);font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:0.5px;}
+  .card-body{padding:20px;}
+  .card-title{font-size:16px;font-weight:700;margin-bottom:6px;}
+  .card-meta{font-size:12px;color:var(--muted);margin-bottom:14px;}
+  .card-result{font-size:12px;color:var(--muted);background:var(--bg2);padding:8px 12px;border-radius:8px;}
+
+  /* MODAL */
+  .modal-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:20px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.18);}
+  .modal-img{width:100%;height:260px;object-fit:cover;border-radius:20px 20px 0 0;display:block;}
+  .modal-img-placeholder{width:100%;height:260px;display:flex;align-items:center;justify-content:center;font-size:72px;border-radius:20px 20px 0 0;}
+  .modal-body{padding:32px;}
+  .modal-cat{font-size:12px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+  .modal-title{font-size:24px;font-weight:800;margin-bottom:8px;}
+  .modal-meta{font-size:13px;color:var(--muted);margin-bottom:20px;}
+  .modal-result{background:var(--green-dim);color:var(--green);padding:12px 16px;border-radius:10px;font-size:14px;font-weight:600;margin-bottom:20px;}
+  .modal-desc{font-size:14px;line-height:1.9;color:var(--muted);white-space:pre-wrap;}
+  .modal-close-btn{display:block;width:100%;margin-top:24px;padding:14px;background:var(--green);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.2s;}
+  .modal-close-btn:hover{background:#1254a8;}
+  .modal-hint{font-size:11px;color:var(--muted);text-align:right;margin-top:8px;}
+
+  /* LIGHTBOX */
+  #lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;cursor:zoom-out;}
+  #lightbox.open{display:flex;}
+  #lightbox img{max-width:95vw;max-height:95vh;object-fit:contain;border-radius:8px;}
+  #lb-close{position:absolute;top:20px;right:24px;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:22px;width:44px;height:44px;border-radius:50%;cursor:pointer;}
+
+  /* EMPTY */
+  .empty{text-align:center;padding:80px 20px;color:var(--muted);}
+
+  /* FOOTER */
+  footer{background:var(--bg2);border-top:1px solid var(--border);padding:32px 40px;text-align:center;font-size:13px;color:var(--muted);}
+
+  /* FLOAT */
+  .float-kakao{position:fixed;bottom:30px;right:24px;background:#FEE500;color:#3A1D1D;padding:12px 20px;border-radius:50px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(0,0,0,0.15);z-index:99;transition:all 0.2s;}
+  .float-kakao:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.2);}
+  .scroll-top{position:fixed;bottom:90px;right:24px;width:44px;height:44px;border-radius:50%;background:var(--green);color:#fff;border:none;font-size:18px;cursor:pointer;display:none;z-index:98;box-shadow:0 4px 16px rgba(21,101,192,0.3);}
+  .scroll-top.visible{display:flex;align-items:center;justify-content:center;}
+
+  @media(max-width:768px){
+    nav{padding:14px 16px;}
+    .page-header{padding:60px 20px 32px;}
+    .page-title{font-size:32px;}
+    .float-kakao span{display:none;}
+    .float-kakao{padding:14px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo"><svg style="height:26px;width:auto;display:block;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 298.77 53"><defs><style>.cls-1,.cls-2{fill:#1c61ae}.cls-3{fill:#4aaae0}.cls-4{fill:none;stroke:#1a3060;stroke-linecap:round;stroke-linejoin:round;stroke-width:6px}.cls-5{fill:#2f73ba}.cls-2{fill-rule:evenodd}.cls-6{fill:#cfddef}</style></defs><path class="cls-2" d="M67.77,3h15c11,0,19,8,19,18s-8,18-19,18h-15V3ZM74.77,10v24h7c6.5,0,11.5-5,11.5-12s-5-12-11.5-12h-7Z"/><path class="cls-1" d="M109.77,3h26v7h-19v8h17v7h-17v9h19v7h-26V3Z"/><path class="cls-1" d="M139.77,3h8l11,27,11-27h8l-15,36h-11l-12-36Z"/><circle class="cls-3" cx="177.77" cy="4" r="4"/><path class="cls-2" d="M181.77,21c0-10.5,8-19.5,19.5-19.5s19.5,9,19.5,19.5-8,19.5-19.5,19.5-19.5-9-19.5-19.5ZM188.77,21c0,7,5.5,12.5,12.5,12.5s12.5-5.5,12.5-12.5-5.5-12.5-12.5-12.5-12.5,5.5-12.5,12.5Z"/><path class="cls-2" d="M225.77,3h16c7.5,0,13,5,13,12,0,5-2.5,9-7,11l8,13h-8l-7-13h-7v13h-8V3ZM233.77,10v9.5h7.5c3.5,0,5.5-2,5.5-4.75s-2-4.75-5.5-4.75h-7.5Z"/><path class="cls-2" d="M261.77,39l15-36h7l15,36h-8l-3-8h-15l-3,8h-8ZM276.27,25h10l-5-14-5,14Z"/><path class="cls-6" d="M70.95,49h96c1.1,0,2,.9,2,2h0c0,1.1-.9,2-2,2h-96c-1.1,0-2-.9-2-2h0c0-1.1.9-2,2-2Z"/><path class="cls-3" d="M69.77,49h32c1.1,0,2,.9,2,2h0c0,1.1-.9,2-2,2h-32c-1.1,0-2-.9-2-2h0c0-1.1.9-2,2-2Z"/><path class="cls-4" d="M20.07,7.2L3,27.6l17.07,20.4"/><path class="cls-4" d="M32.26,7.2l17.07,20.4-17.07,20.4"/><ellipse class="cls-5" cx="26.82" cy="27.02" rx="5.38" ry="4.74"/></svg></a>
+  <div class="nav-right">
+    <a href="status.html" class="nav-status">📋 진행현황 조회</a>
+    <a href="index.html#contact" class="nav-cta">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+      무료 상담 신청
+    </a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <p class="page-label">Portfolio</p>
+  <h1 class="page-title">작업물 전체보기</h1>
+  <p class="page-sub">말보다 결과물로 증명합니다.</p>
+</div>
+
+<div class="container">
+  <div class="filter-wrap">
+    <button class="filter-tab active" onclick="filterBy('all',this)">전체</button>
+    <button class="filter-tab" onclick="filterBy('web',this)">웹사이트/웹앱</button>
+    <button class="filter-tab" onclick="filterBy('app',this)">모바일 앱</button>
+    <button class="filter-tab" onclick="filterBy('auto',this)">자동화</button>
+  </div>
+  <div class="portfolio-grid" id="grid">
+    <div class="empty">불러오는 중...</div>
+  </div>
+</div>
+
+<!-- 상세 모달 -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
+<!-- 라이트박스 -->
+<div id="lightbox" onclick="closeLightbox()">
+  <button id="lb-close" onclick="closeLightbox()">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<footer>
+  <p>© 2026 DEVORA. All rights reserved. &nbsp;·&nbsp; <a href="index.html" style="color:var(--muted);text-decoration:none;">홈으로</a></p>
+</footer>
+
+<button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<a href="https://open.kakao.com/o/sCdTuSki" class="float-kakao" target="_blank">
+  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 3C6.477 3 2 6.477 2 11c0 2.89 1.594 5.433 4.023 6.985l-.924 3.468a.25.25 0 0 0 .374.28L9.82 19.26C10.533 19.41 11.258 19.5 12 19.5c5.523 0 10-3.477 10-7.5S17.523 3 12 3z"/></svg>
+  <span>카카오 상담</span>
+</a>
+
+<script>
+var SHEET_URL = 'https://script.google.com/macros/s/AKfycbyxFFyXgvrMHlBNNOU3u0rYSorHiTkdHPJgaGSvKLgdqmIjaKGdE61S2Q96qHkfPoQ/exec';
+var ALL_DATA = [];
+var CURRENT_FILTER = 'all';
+
+var DEFAULT_PORTFOLIO = [
+  {id:'p1',cat:'web',category:'웹앱',icon:'🛍️',title:'소상공인 온라인 주문 시스템',meta:'음식점 · 3주 납품',result:'📈 월 주문 수 3배 증가',desc:'소상공인을 위한 맞춤형 온라인 주문 관리 시스템입니다.\n주문 접수부터 배달 현황까지 한 화면에서 관리할 수 있으며,\n카카오 알림톡 연동으로 고객에게 자동 알림을 발송합니다.',imgUrl:''},
+  {id:'p2',cat:'auto',category:'자동화',icon:'📊',title:'엑셀 정산 자동화 툴',meta:'유통업체 · 1주 납품',result:'⏱️ 3시간 → 5분으로 단축',desc:'매일 수작업으로 처리하던 정산 업무를 자동화했습니다.\n여러 엑셀 파일을 자동으로 합산하고 보고서를 생성합니다.',imgUrl:''},
+  {id:'p3',cat:'app',category:'모바일 앱',icon:'📱',title:'소규모 헬스장 회원 관리 앱',meta:'헬스장 · 5주 납품',result:'✅ App Store 출시 완료',desc:'iOS/Android 동시 출시한 헬스장 회원 관리 앱입니다.\n출석 체크, 회원권 관리, 인바디 기록 기능을 포함합니다.',imgUrl:''},
+  {id:'p4',cat:'auto',category:'자동화',icon:'🤖',title:'쇼핑몰 가격 모니터링 봇',meta:'이커머스 · 2주 납품',result:'🔔 경쟁사 가격 변동 즉시 알림',desc:'경쟁사 쇼핑몰 가격을 실시간으로 모니터링하고\nSlack으로 즉시 알림을 발송하는 자동화 봇입니다.',imgUrl:''},
+  {id:'p5',cat:'web',category:'웹앱',icon:'🏨',title:'숙박 예약 관리 시스템',meta:'펜션 · 4주 납품',result:'📅 이중 예약 사고 0건',desc:'펜션 운영자를 위한 예약 관리 시스템입니다.\n캘린더 기반 예약 현황, 자동 확인 메시지 발송 기능을 제공합니다.',imgUrl:''},
+  {id:'p6',cat:'auto',category:'자동화',icon:'📋',title:'주간 보고서 자동 생성기',meta:'IT 팀 · 1주 납품',result:'📝 매주 2시간 업무 절감',desc:'Notion과 Google 스프레드시트 데이터를 자동으로 수집해\n매주 월요일 아침 보고서를 자동 생성하고 이메일로 발송합니다.',imgUrl:''}
+];
+
+var GRADIENTS = {
+  web:'linear-gradient(135deg,#4a9eff,#1e5fc7)',
+  app:'linear-gradient(135deg,#63b3ff,#2979d4)',
+  auto:'linear-gradient(135deg,#4a9eff,#1e5fc7)',
+  기타:'linear-gradient(135deg,#7ec8e3,#1565C0)'
+};
+
+function loadData() {
+  // 1단계: localStorage 캐시 즉시 표시
+  try {
+    var local = JSON.parse(localStorage.getItem('devora_portfolio') || 'null');
+    ALL_DATA = (local && local.length) ? local : DEFAULT_PORTFOLIO.slice();
+  } catch(e) { ALL_DATA = DEFAULT_PORTFOLIO.slice(); }
+  renderGrid();
+
+  // 2단계: Sheets 순서 그대로 사용
+  fetch(SHEET_URL + '?action=getPortfolio', { redirect:'follow' })
+    .then(function(r){ return r.text(); })
+    .then(function(t){
+      try {
+        var d = JSON.parse(t);
+        if (d.result === 'success' && d.items && d.items.length) {
+          ALL_DATA = d.items;
+          DEFAULT_PORTFOLIO.forEach(function(def){
+            if (!ALL_DATA.find(function(p){ return p.id===def.id; })) ALL_DATA.push(def);
+          });
+          ALL_DATA = restoreLocalImages(ALL_DATA);
+          localStorage.setItem('devora_portfolio', JSON.stringify(ALL_DATA));
+          renderGrid();
+        }
+      } catch(e) {}
+    })
+    .catch(function(){});
+}
+
+function filterBy(cat, btn) {
+  CURRENT_FILTER = cat;
+  document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderGrid();
+}
+
+function restoreLocalImages(items) {
+  return items.map(function(p) {
+    var needRestore = !p.imgUrl || (p.imgUrl && String(p.imgUrl).startsWith('__LOCAL__'));
+    if (needRestore) {
+      var stored = localStorage.getItem('devora_img_' + p.id);
+      if (stored) return Object.assign({}, p, { imgUrl: stored });
+      if (p.imgUrl && String(p.imgUrl).startsWith('__LOCAL__')) {
+        return Object.assign({}, p, { imgUrl: '' });
+      }
+    }
+    return p;
+  });
+}
+
+function renderGrid() {
+  var raw = CURRENT_FILTER === 'all' ? ALL_DATA : ALL_DATA.filter(function(p){ return p.cat === CURRENT_FILTER; });
+  var items = restoreLocalImages(raw);
+  if (!items.length) {
+    document.getElementById('grid').innerHTML = '<div class="empty">해당 작업물이 없습니다.</div>';
+    return;
+  }
+  document.getElementById('grid').innerHTML = items.map(function(p) {
+    var grad = GRADIENTS[p.cat] || GRADIENTS['기타'];
+    var thumb = p.imgUrl
+      ? '<img src="' + p.imgUrl + '" alt="' + p.title + '" style="width:100%;height:100%;object-fit:cover;border-radius:0;" onclick="openLightbox(\'' + p.imgUrl + '\')" onerror="this.parentNode.style.background=\'' + grad + '\';this.style.display=\'none\'">'
+      : '<span class="card-thumb-icon">' + (p.icon||'🛠️') + '</span>';
+    var thumbStyle = p.imgUrl ? 'background:#dce8f5;' : 'background:' + grad + ';';
+    return '<div class="portfolio-card" onclick="openModal(\'' + p.id + '\')">' +
+      '<div class="card-thumb" style="' + thumbStyle + '">' +
+        thumb +
+        '<span class="card-badge">' + (p.category||p.cat) + '</span>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<div class="card-title">' + p.title + '</div>' +
+        '<div class="card-meta">' + (p.meta||'') + '</div>' +
+        '<div class="card-result">' + (p.result||'') + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function openModal(id) {
+  var raw = ALL_DATA.find(function(x){ return x.id===id; });
+  if (!raw) return;
+  var p = (raw.imgUrl && String(raw.imgUrl).startsWith('__LOCAL__'))
+    ? Object.assign({}, raw, { imgUrl: localStorage.getItem('devora_img_' + raw.id) || '' })
+    : raw;
+  var grad = GRADIENTS[p.cat] || GRADIENTS['기타'];
+  var imgHtml = p.imgUrl
+    ? '<img class="modal-img" src="' + p.imgUrl + '" alt="' + p.title + '" onclick="openLightbox(\'' + p.imgUrl + '\')" style="cursor:zoom-in;">'
+    : '<div class="modal-img-placeholder" style="background:' + grad + ';">' + (p.icon||'🛠️') + '</div>';
+  var hint = p.imgUrl ? '<p class="modal-hint">사진을 클릭하면 크게 볼 수 있습니다.</p>' : '';
+  document.getElementById('modalBox').innerHTML =
+    imgHtml + hint +
+    '<div class="modal-body">' +
+      '<div class="modal-cat">' + (p.category||p.cat) + '</div>' +
+      '<div class="modal-title">' + p.title + '</div>' +
+      '<div class="modal-meta">' + (p.meta||'') + '</div>' +
+      '<div class="modal-result">' + (p.result||'') + '</div>' +
+      '<div class="modal-desc">' + (p.desc||'') + '</div>' +
+      '<button class="modal-close-btn" onclick="closeModal()">닫기</button>' +
+    '</div>';
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function openLightbox(src) { document.getElementById('lb-img').src=src; document.getElementById('lightbox').classList.add('open'); }
+function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+
+document.addEventListener('keydown', function(e){ if(e.key==='Escape'){closeModal();closeLightbox();} });
+window.addEventListener('scroll', function(){ document.getElementById('scrollTopBtn').classList.toggle('visible', window.scrollY>300); });
+
+loadData();
+</script>
+</body>
+</html>

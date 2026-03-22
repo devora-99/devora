@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>판매 프로그램 — DEVORA</title>
+<link rel="icon" type="image/svg+xml" href="symbol.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f0f7ff;--bg2:#e2effc;--bg3:#ddeaf8;--card:#ffffff;--border:rgba(21,101,192,0.15);--green:#1565C0;--green-dim:rgba(21,101,192,0.08);--green-glow:rgba(21,101,192,0.2);--text:#0d1b2a;--muted:#5a7a9a;--sub:#8aabcc;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:"Noto Sans KR",sans-serif;line-height:1.7;overflow-x:hidden;}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.1;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");}
+  .container{max-width:1100px;margin:0 auto;padding:0 24px;}
+  section{position:relative;z-index:1;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse-blue{0%,100%{box-shadow:0 0 0 0 var(--green-glow)}50%{box-shadow:0 0 0 8px transparent}}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .fade-up{opacity:0;transform:translateY(32px);}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(16px);background:rgba(240,247,255,0.95);border-bottom:1px solid var(--border);}
+  .nav-right{display:flex;align-items:center;gap:10px;}
+  .nav-status{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:none;border:1px solid rgba(21,101,192,0.2);color:var(--muted);font-size:12px;font-weight:500;text-decoration:none;border-radius:4px;transition:all 0.2s;}
+  .nav-status:hover{border-color:var(--green);color:var(--green);}
+  .nav-cta{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:var(--green);color:#fff;font-size:13px;font-weight:700;text-decoration:none;border-radius:4px;transition:opacity 0.2s;animation:pulse-blue 2.5s infinite;}
+  .nav-cta:hover{opacity:0.85;}
+
+  /* HERO */
+  #hero{padding:130px 0 70px;background:var(--bg2);border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+  #hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent);}
+  .hero-inner{position:relative;z-index:1;}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid var(--green);border-radius:100px;font-size:12px;color:var(--green);margin-bottom:20px;animation:fadeUp 0.5s ease forwards;}
+  .hero-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse-blue 1.5s infinite;}
+  .hero-title{font-family:"Bebas Neue",sans-serif;font-size:clamp(44px,6vw,76px);line-height:1.05;letter-spacing:2px;margin-bottom:16px;animation:fadeUp 0.5s 0.1s ease forwards;opacity:0;}
+  .hero-title span{color:var(--green);}
+  .hero-sub{font-size:15px;color:var(--muted);max-width:520px;margin-bottom:36px;line-height:1.9;animation:fadeUp 0.5s 0.2s ease forwards;opacity:0;}
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;animation:fadeUp 0.5s 0.3s ease forwards;opacity:0;}
+  .btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--green);color:#fff;font-weight:700;font-size:14px;text-decoration:none;border-radius:4px;transition:all 0.2s;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px var(--green-glow);}
+  .btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border:1px solid var(--border);color:var(--text);font-size:14px;text-decoration:none;border-radius:4px;transition:all 0.2s;background:rgba(21,101,192,0.06);}
+  .btn-secondary:hover{border-color:var(--green);color:var(--green);}
+
+  /* PROGRAMS SECTION - index.html 포트폴리오와 동일 */
+  #programs{padding:80px 0 100px;}
+  .section-label{font-size:11px;letter-spacing:4px;color:var(--green);text-transform:uppercase;margin-bottom:12px;}
+  .section-title{font-family:"Bebas Neue",sans-serif;font-size:clamp(32px,4vw,52px);letter-spacing:1px;line-height:1.1;margin-bottom:14px;}
+  .section-sub{font-size:15px;color:var(--muted);margin-bottom:40px;}
+
+  /* 포트폴리오 카드와 완전히 동일한 구조 */
+  .program-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+  .program-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all 0.3s;}
+  .program-card:hover{transform:translateY(-4px);border-color:rgba(21,101,192,0.25);box-shadow:0 8px 32px rgba(21,101,192,0.12);}
+  .program-thumb{height:160px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden;}
+  .program-thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(255,255,255,0) 30%,rgba(255,255,255,0.98) 100%);}
+  .program-cat-badge{position:absolute;top:12px;left:12px;padding:4px 10px;background:rgba(255,255,255,0.85);border:1px solid rgba(21,101,192,0.15);border-radius:4px;font-size:11px;color:#1565C0;z-index:1;font-weight:600;}
+  .program-body{padding:22px;}
+  .program-name{font-size:15px;font-weight:700;margin-bottom:8px;}
+  .program-meta{font-size:12px;color:var(--sub);margin-bottom:14px;}
+  .program-highlight{font-size:13px;color:var(--green);background:var(--green-dim);padding:8px 12px;border-radius:6px;}
+
+  /* 상세 모달 - index.html portModal과 동일한 구조 */
+  #storeModal{display:none;position:fixed;inset:0;z-index:300;background:rgba(13,27,42,0.6);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;}
+  .sm-box{background:var(--card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;position:relative;}
+  .sm-thumb{height:240px;display:flex;align-items:center;justify-content:center;font-size:60px;position:relative;border-radius:16px 16px 0 0;overflow:hidden;}
+  .sm-thumb img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;}
+  .sm-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.9);border:none;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+  .sm-close:hover{background:var(--green);color:#fff;}
+  .sm-img-hint{position:absolute;bottom:8px;right:10px;font-size:10px;color:rgba(255,255,255,0.85);background:rgba(0,0,0,0.35);padding:2px 7px;border-radius:10px;z-index:3;pointer-events:none;}
+  .sm-body{padding:28px;}
+  .sm-cat{display:inline-block;padding:4px 10px;background:var(--green-dim);color:var(--green);border-radius:4px;font-size:11px;font-weight:600;margin-bottom:12px;}
+  .sm-name{font-size:22px;font-weight:700;margin-bottom:8px;}
+  .sm-desc{font-size:14px;color:var(--muted);line-height:1.9;margin-bottom:20px;white-space:pre-line;}
+  .sm-features-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:22px;}
+  .sm-features-label{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;}
+  .sm-features{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;}
+  .sm-features li{display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(21,101,192,0.06);}
+  .sm-features li:last-child,.sm-features li:nth-last-child(2):nth-child(odd){border-bottom:none;}
+  .sm-features li::before{content:"✓";color:var(--green);font-weight:700;flex-shrink:0;}
+  .sm-footer{display:flex;align-items:center;justify-content:space-between;padding-top:18px;border-top:1px solid var(--border);}
+  .sm-price{font-size:12px;color:var(--sub);}
+  .sm-kakao{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:#FEE500;color:#000;font-size:14px;font-weight:700;border-radius:6px;text-decoration:none;transition:all 0.2s;}
+  .sm-kakao:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(254,229,0,0.4);}
+
+  /* 라이트박스 */
+  #lb{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.93);align-items:center;justify-content:center;cursor:zoom-out;}
+  #lb.open{display:flex;}
+  #lb img{max-width:95vw;max-height:95vh;object-fit:contain;border-radius:8px;box-shadow:0 0 60px rgba(0,0,0,0.5);}
+  #lb-close{position:absolute;top:20px;right:24px;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:24px;width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+  /* CTA */
+  #cta{padding:72px 0 100px;background:var(--bg2);border-top:1px solid var(--border);}
+  .cta-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:56px 40px;text-align:center;position:relative;overflow:hidden;}
+  .cta-box::before{content:"";position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:400px;height:400px;background:radial-gradient(circle,rgba(21,101,192,0.07),transparent 70%);pointer-events:none;}
+  .cta-title{font-family:"Bebas Neue",sans-serif;font-size:clamp(34px,5vw,56px);letter-spacing:2px;margin-bottom:14px;line-height:1.1;}
+  .cta-sub{font-size:15px;color:var(--muted);margin-bottom:32px;}
+  .cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+
+  footer{padding:40px 24px;text-align:center;border-top:1px solid var(--border);font-size:12px;color:var(--sub);}
+  footer a{color:var(--sub);text-decoration:none;}footer a:hover{color:var(--green);}
+
+  .float-kakao{position:fixed;bottom:28px;right:28px;z-index:99;display:flex;align-items:center;gap:10px;padding:14px 22px;background:#FEE500;color:#000;font-size:14px;font-weight:700;text-decoration:none;border-radius:50px;box-shadow:0 8px 28px rgba(254,229,0,0.35);transition:all 0.2s;animation:float 3s ease-in-out infinite;}
+  .float-kakao:hover{transform:translateY(-3px) scale(1.03);}
+  .float-kakao svg{width:20px;height:20px;}
+  .scroll-top{position:fixed;bottom:108px;right:28px;z-index:99;width:44px;height:44px;background:#fff;border:1.5px solid rgba(21,101,192,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--green);font-size:18px;font-weight:700;transition:all 0.2s;opacity:0;pointer-events:none;}
+  .scroll-top.visible{opacity:1;pointer-events:all;}
+  .scroll-top:hover{background:var(--green);color:#fff;}
+
+  @media(max-width:768px){.program-grid{grid-template-columns:1fr 1fr;}.hero-ctas{flex-direction:column;}.float-kakao span{display:none;}.float-kakao{padding:14px;}.sm-features{grid-template-columns:1fr;}}
+  @media(max-width:480px){.program-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div><a href="index.html" style="display:flex;align-items:center;"><svg style="height:26px;width:auto;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 298.77 53"><defs><style>.c1,.c2{fill:#1c61ae;}.c3{fill:#4aaae0;}.c4{fill:none;stroke:#1a3060;stroke-linecap:round;stroke-linejoin:round;stroke-width:6px;}.c5{fill:#2f73ba;}.c2{fill-rule:evenodd;}.c6{fill:#cfddef;}</style></defs><path class="c2" d="M67.77,3h15c11,0,19,8,19,18s-8,18-19,18h-15V3ZM74.77,10v24h7c6.5,0,11.5-5,11.5-12s-5-12-11.5-12h-7Z"/><path class="c1" d="M109.77,3h26v7h-19v8h17v7h-17v9h19v7h-26V3Z"/><path class="c1" d="M139.77,3h8l11,27,11-27h8l-15,36h-11l-12-36Z"/><circle class="c3" cx="177.77" cy="4" r="4"/><path class="c2" d="M181.77,21c0-10.5,8-19.5,19.5-19.5s19.5,9,19.5,19.5-8,19.5-19.5,19.5-19.5-9-19.5-19.5ZM188.77,21c0,7,5.5,12.5,12.5,12.5s12.5-5.5,12.5-12.5-5.5-12.5-12.5-12.5-12.5,5.5-12.5,12.5Z"/><path class="c2" d="M225.77,3h16c7.5,0,13,5,13,12,0,5-2.5,9-7,11l8,13h-8l-7-13h-7v13h-8V3ZM233.77,10v9.5h7.5c3.5,0,5.5-2,5.5-4.75s-2-4.75-5.5-4.75h-7.5Z"/><path class="c2" d="M261.77,39l15-36h7l15,36h-8l-3-8h-15l-3,8h-8ZM276.27,25h10l-5-14-5,14Z"/><path class="c6" d="M70.95,49h96c1.1,0,2,.9,2,2h0c0,1.1-.9,2-2,2h-96c-1.1,0-2-.9-2-2h0c0-1.1.9-2,2-2Z"/><path class="c3" d="M69.77,49h32c1.1,0,2,.9,2,2h0c0,1.1-.9,2-2,2h-32c-1.1,0-2-.9-2-2h0c0-1.1.9-2,2-2Z"/><path class="c4" d="M20.07,7.2L3,27.6l17.07,20.4"/><path class="c4" d="M32.26,7.2l17.07,20.4-17.07,20.4"/><ellipse class="c5" cx="26.82" cy="27.02" rx="5.38" ry="4.74"/></svg></a></div>
+  <div class="nav-right">
+    <a href="status.html" class="nav-status">📋 진행현황 조회</a>
+    <a href="index.html#contact" class="nav-cta"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>무료 상담</a>
+  </div>
+</nav>
+
+<section id="hero">
+  <div class="container hero-inner">
+    <div class="hero-badge">🛠 실제 납품·사용된 프로그램들</div>
+    <h1 class="hero-title">직접 만들고<br><span>검증된</span> 프로그램</h1>
+    <p class="hero-sub">의뢰·납품 과정에서 실제로 검증된 프로그램입니다.<br>카드를 클릭하면 상세 정보와 기능을 확인할 수 있습니다.</p>
+    <div class="hero-ctas">
+      <a href="#programs" class="btn-primary">프로그램 보기 ↓</a>
+      <a href="index.html#contact" class="btn-secondary">커스텀 제작 문의 →</a>
+    </div>
+  </div>
+</section>
+
+<section id="programs">
+  <div class="container">
+    <div class="fade-up">
+      <p class="section-label">Programs</p>
+      <h2 class="section-title">판매 프로그램</h2>
+      <p class="section-sub">카드를 클릭하면 상세 정보를 확인할 수 있습니다.</p>
+    </div>
+    <div class="program-grid fade-up" id="programGrid">
+      <div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)">불러오는 중...</div>
+    </div>
+  </div>
+</section>
+
+<section id="cta">
+  <div class="container">
+    <div class="cta-box fade-up">
+      <div class="section-label">Contact</div>
+      <h2 class="cta-title">원하는 프로그램이<br>없으신가요?</h2>
+      <p class="cta-sub">요구사항을 말씀해 주시면 맞춤 제작해 드립니다. 첫 상담은 무료입니다.</p>
+      <div class="cta-btns">
+        <a href="https://open.kakao.com/o/sCdTuSki" target="_blank" class="btn-primary" style="background:#FEE500;color:#000;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.477 3 2 6.477 2 11c0 2.89 1.594 5.433 4.023 6.985l-.924 3.468a.25.25 0 0 0 .374.28L9.82 19.26C10.533 19.41 11.258 19.5 12 19.5c5.523 0 10-3.477 10-7.5S17.523 3 12 3z"/></svg>카카오로 상담하기</a>
+        <a href="index.html#contact" class="btn-secondary">문의 폼 작성하기 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p style="margin-bottom:8px;"><a href="index.html">홈</a> &nbsp;·&nbsp; <a href="status.html">진행현황 조회</a></p>
+    <p>© 2026 DEVORA. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- 상세 모달 -->
+<div id="storeModal" onclick="if(event.target===this)closeModal()">
+  <div class="sm-box">
+    <div class="sm-thumb" id="sm_thumb">
+      <button class="sm-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="sm-body">
+      <span class="sm-cat" id="sm_cat"></span>
+      <div class="sm-name" id="sm_name"></div>
+      <div class="sm-desc" id="sm_desc"></div>
+      <div class="sm-features-box">
+        <div class="sm-features-label">주요 기능</div>
+        <ul class="sm-features" id="sm_features"></ul>
+      </div>
+      <div class="sm-footer">
+        <span class="sm-price">💬 가격은 상담 후 결정</span>
+        <a href="https://open.kakao.com/o/sCdTuSki" target="_blank" class="sm-kakao"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.477 3 2 6.477 2 11c0 2.89 1.594 5.433 4.023 6.985l-.924 3.468a.25.25 0 0 0 .374.28L9.82 19.26C10.533 19.41 11.258 19.5 12 19.5c5.523 0 10-3.477 10-7.5S17.523 3 12 3z"/></svg>구매 상담하기</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 라이트박스 -->
+<div id="lb" onclick="closeLb()">
+  <button id="lb-close" onclick="closeLb()">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<a href="https://open.kakao.com/o/sCdTuSki" class="float-kakao" target="_blank">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.477 3 2 6.477 2 11c0 2.89 1.594 5.433 4.023 6.985l-.924 3.468a.25.25 0 0 0 .374.28L9.82 19.26C10.533 19.41 11.258 19.5 12 19.5c5.523 0 10-3.477 10-7.5S17.523 3 12 3z"/></svg>
+  <span>카카오 상담</span>
+</a>
+
+<script>
+const KAKAO_URL = "https://open.kakao.com/o/sCdTuSki";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbyxFFyXgvrMHlBNNOU3u0rYSorHiTkdHPJgaGSvKLgdqmIjaKGdE61S2Q96qHkfPoQ/exec";
+
+const CAT_ICON = {"웹 형태":"🌐","앱 형태":"📱","윈도우 프로그램":"🖥️","macOS 프로그램":"🍎","자동화 / 봇":"🤖","기타":"🛠"};
+const CAT_GRAD = {"웹 형태":"linear-gradient(135deg,#4a9eff,#1e5fc7)","앱 형태":"linear-gradient(135deg,#63b3ff,#2979d4)","윈도우 프로그램":"linear-gradient(135deg,#b8d4f0,#8ab8e8)","macOS 프로그램":"linear-gradient(135deg,#ddeaf8,#bdd4f0)","자동화 / 봇":"linear-gradient(135deg,#4a9eff,#1e5fc7)","기타":"linear-gradient(135deg,#e2effc,#ddeaf8)"};
+
+const DEFAULT = [
+  {id:"s1",name:"업무 체크리스트 앱",cat:"윈도우 프로그램",desc:"팀원들과 업무 진행상황을 실시간으로 공유하는 데스크톱 앱.\nSupabase 기반 실시간 동기화로 언제 어디서든 동일한 현황을 확인할 수 있습니다.",features:"실시간 팀 동기화,업무 담당자 지정,완료율 대시보드,오프라인 지원",imgUrl:""},
+  {id:"s2",name:"견적서 관리 프로그램",cat:"윈도우 프로그램",desc:"견적서 작성부터 PDF 변환, 이메일 발송까지 원클릭으로 처리.\n기존 Excel 양식을 그대로 사용하면서 반복 업무를 자동화합니다.",features:"Excel COM 자동화,자동 PDF 변환,SMTP 이메일 발송,주소록 관리",imgUrl:""},
+  {id:"s3",name:"가격 모니터링 봇",cat:"자동화 / 봇",desc:"경쟁사 쇼핑몰 가격을 자동으로 감지하고 변동 즉시 알림 발송.\n최대 3개 쇼핑몰, 100개 상품을 동시 모니터링합니다.",features:"쇼핑몰 3곳 동시 모니터링,가격 변동 즉시 알림,엑셀 리포트 자동 생성,카카오 / 슬랙 연동",imgUrl:""},
+  {id:"s4",name:"Excel 정산 자동화",cat:"윈도우 프로그램",desc:"여러 엑셀 파일의 정산 데이터를 자동 합산하고 보고서 생성.\n매일 3시간 걸리던 작업을 5분으로 단축한 실제 납품 프로그램입니다.",features:"다중 Excel 자동 합산,GUI 인터페이스,오류 항목 하이라이트,보고서 자동 생성",imgUrl:""}
+];
+
+var DATA = [];
+
+function parseList(v){if(Array.isArray(v))return v;if(!v)return[];return String(v).split(",").map(function(s){return s.trim();}).filter(Boolean);}
+function isCorrupted(items){if(!items||!items.length)return false;var cats=["웹 형태","앱 형태","윈도우 프로그램","macOS 프로그램","자동화 / 봇","기타"];return items.some(function(p){return cats.indexOf(p.name)!==-1||p.features==="__IMG__";});}
+
+function renderGrid(list){
+  if(!list||!list.length){document.getElementById("programGrid").innerHTML="<div style=\"grid-column:1/-1;text-align:center;padding:60px;color:var(--muted)\">등록된 프로그램이 없습니다.</div>";return;}
+  document.getElementById("programGrid").innerHTML = list.map(function(p){
+    var imgUrl = (p.imgUrl && p.imgUrl !== "__IMG__") ? p.imgUrl : "";
+    var grad = CAT_GRAD[p.cat] || CAT_GRAD["기타"];
+    var icon = CAT_ICON[p.cat] || "🛠";
+    var features = parseList(p.features);
+    var firstFeature = features.length ? "✓ " + features[0] + (features.length > 1 ? " 외 " + (features.length-1) + "개" : "") : "";
+    return "<div class=\"program-card\" onclick=\"openModal('"+p.id+"')\">" +
+      "<div class=\"program-thumb\" style=\""+(imgUrl?"background:#dce8f5;":"background:"+grad+";")+"\">"+
+        (imgUrl ? "<img src=\""+imgUrl+"\" alt=\""+p.name+"\" style=\"width:100%;height:100%;object-fit:cover;position:absolute;inset:0;\">" : "<span style=\"position:relative;z-index:1;font-size:36px;\">"+icon+"</span>")+
+        "<span class=\"program-cat-badge\">"+( p.cat||"")+"</span>"+
+      "</div>"+
+      "<div class=\"program-body\">"+
+        "<div class=\"program-name\">"+p.name+"</div>"+
+        "<div class=\"program-meta\">"+( p.cat||"")+"</div>"+
+        "<div class=\"program-highlight\">"+firstFeature+"</div>"+
+      "</div>"+
+    "</div>";
+  }).join("");
+}
+
+function openModal(id){
+  var p = DATA.find(function(x){return x.id===id;});
+  if(!p) return;
+  var imgUrl = (p.imgUrl && p.imgUrl !== "__IMG__") ? p.imgUrl : "";
+  var grad = CAT_GRAD[p.cat] || CAT_GRAD["기타"];
+  var icon = CAT_ICON[p.cat] || "🛠";
+  var thumb = document.getElementById("sm_thumb");
+  thumb.style.background = imgUrl ? "#dce8f5" : grad;
+  // 기존 요소 제거 (sm-close 제외)
+  Array.from(thumb.children).forEach(function(el){if(!el.classList.contains("sm-close"))el.remove();});
+  if(imgUrl){
+    var img = document.createElement("img");
+    img.src = imgUrl; img.alt = p.name;
+    img.style.cssText = "width:100%;height:100%;object-fit:cover;position:absolute;inset:0;cursor:zoom-in;";
+    img.onclick = function(e){e.stopPropagation();openLb(imgUrl);};
+    thumb.appendChild(img);
+    var hint = document.createElement("span");
+    hint.className = "sm-img-hint"; hint.textContent = "사진을 클릭하세요.";
+    thumb.appendChild(hint);
+  } else {
+    var sp = document.createElement("span");
+    sp.textContent = icon; sp.style.cssText = "font-size:60px;position:relative;z-index:1;";
+    thumb.appendChild(sp);
+  }
+  document.getElementById("sm_cat").textContent = p.cat || "";
+  document.getElementById("sm_name").textContent = p.name;
+  document.getElementById("sm_desc").textContent = (p.desc||"").replace(/\\n/g,"\n");
+  document.getElementById("sm_features").innerHTML = parseList(p.features).map(function(f){return "<li>"+f+"</li>";}).join("");
+  document.getElementById("storeModal").style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+function closeModal(){document.getElementById("storeModal").style.display="none";document.body.style.overflow="";}
+function openLb(src){document.getElementById("lb-img").src=src;document.getElementById("lb").classList.add("open");}
+function closeLb(){document.getElementById("lb").classList.remove("open");document.getElementById("lb-img").src="";}
+
+function loadPrograms(){
+  try{
+    var cached = JSON.parse(localStorage.getItem("devora_store")||"null");
+    if(cached&&isCorrupted(cached)){localStorage.removeItem("devora_store");cached=null;}
+    DATA = (cached&&cached.length) ? cached : DEFAULT.slice();
+    renderGrid(DATA);
+  }catch(e){DATA=DEFAULT.slice();renderGrid(DATA);}
+  fetch(SHEET_URL+"?action=getStore",{redirect:"follow"})
+    .then(function(r){return r.text();})
+    .then(function(t){
+      try{
+        var d=JSON.parse(t);
+        if(d.result==="success"&&d.items&&d.items.length&&!isCorrupted(d.items)){
+          DATA=d.items;localStorage.setItem("devora_store",JSON.stringify(DATA));renderGrid(DATA);
+        }
+      }catch(e){}
+    }).catch(function(){});
+}
+
+document.addEventListener("DOMContentLoaded",function(){
+  loadPrograms();
+  var fadeEls=document.querySelectorAll(".fade-up");
+  var show=function(el){el.style.transition="opacity 0.7s ease,transform 0.7s ease";el.style.opacity="1";el.style.transform="translateY(0)";};
+  var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){show(e.target);obs.unobserve(e.target);}});},{threshold:0.05});
+  fadeEls.forEach(function(el){obs.observe(el);});
+  setTimeout(function(){fadeEls.forEach(function(el){var r=el.getBoundingClientRect();if(r.top<window.innerHeight&&r.bottom>0){show(el);obs.unobserve(el);}});},50);
+  window.addEventListener("scroll",function(){document.getElementById("scrollTopBtn").classList.toggle("visible",window.scrollY>400);});
+});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeLb();closeModal();}});
+</script>
+</body>
+</html>
