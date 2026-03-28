@@ -38,6 +38,10 @@ if errorlevel 1 (
     )
 )
 
+echo Fetching remote...
+git fetch origin
+if errorlevel 1 goto :error
+
 git checkout %DEFAULT_BRANCH% >nul 2>nul
 if errorlevel 1 (
     git checkout -b %DEFAULT_BRANCH%
@@ -55,6 +59,13 @@ if errorlevel 1 (
     if errorlevel 1 goto :error
 ) else (
     echo No staged changes to commit.
+)
+
+git rev-parse --verify origin/%DEFAULT_BRANCH% >nul 2>nul
+if not errorlevel 1 (
+    echo Merging remote history...
+    git merge origin/%DEFAULT_BRANCH% --allow-unrelated-histories -X ours --no-edit
+    if errorlevel 1 goto :error
 )
 
 echo Pushing to GitHub...
