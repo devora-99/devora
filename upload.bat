@@ -10,6 +10,7 @@ chcp 65001 >nul
     "put ""C:\Users\wnghk\Desktop\project\devora\portfolio.html"" ""/var/www/html/portfolio.html""" ^
     "put ""C:\Users\wnghk\Desktop\project\devora\reviews.html"" ""/var/www/html/reviews.html""" ^
     "put ""C:\Users\wnghk\Desktop\project\devora\store.html"" ""/var/www/html/store.html""" ^
+    "put ""C:\Users\wnghk\Desktop\project\devora\views-analytics.js"" ""/var/www/html/views-analytics.js""" ^
     "exit"
 
 if %errorlevel% equ 0 (
@@ -28,6 +29,7 @@ if %errorlevel% equ 0 (
         "put ""C:\Users\wnghk\Desktop\project\devora\portfolio.html"" ""/var/www/html/portfolio.html""" ^
         "put ""C:\Users\wnghk\Desktop\project\devora\reviews.html"" ""/var/www/html/reviews.html""" ^
 	"put ""C:\Users\wnghk\Desktop\project\devora\store.html"" ""/var/www/html/store.html""" ^
+        "put ""C:\Users\wnghk\Desktop\project\devora\views-analytics.js"" ""/var/www/html/views-analytics.js""" ^
         "exit"
 )
 pause

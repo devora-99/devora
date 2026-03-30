@@ -122,6 +122,23 @@
   .save-btn{width:100%;padding:12px;background:var(--green);color:#fff;font-weight:700;font-size:14px;border:none;border-radius:8px;cursor:pointer;font-family:inherit;}
   /* 수동접수 */
   .manual-id-preview{font-size:11px;color:var(--green);font-family:monospace;margin-top:6px;padding:6px 10px;background:var(--green-dim);border-radius:5px;border:1px solid rgba(21,101,192,0.15);}
+  .view-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px;}
+  .view-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;}
+  .view-card-label{font-size:11px;color:var(--muted);margin-bottom:8px;}
+  .view-card-value{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--green);line-height:1;}
+  .view-card-sub{margin-top:8px;font-size:11px;color:var(--muted);}
+  .view-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:18px;}
+  .view-panel-title{font-size:13px;font-weight:700;margin-bottom:14px;}
+  .chart-wrap{position:relative;height:280px;}
+  #viewsChart{width:100%;height:100%;display:block;}
+  .views-table{width:100%;border-collapse:collapse;}
+  .views-table th,.views-table td{padding:11px 14px;border-bottom:1px solid rgba(21,101,192,0.08);font-size:12px;text-align:left;}
+  .views-table th{font-size:11px;color:var(--muted);background:var(--bg2);}
+  .delta-up{color:#1565C0;font-weight:700;}
+  .delta-down{color:#ef4444;font-weight:700;}
+  .delta-flat{color:var(--muted);font-weight:700;}
+  @media(max-width:900px){.view-cards{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  @media(max-width:640px){.view-cards{grid-template-columns:1fr;}.chart-wrap{height:220px;}}
 
   #lb{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;cursor:zoom-out;}
   #lb.open{display:flex;}
@@ -252,6 +269,7 @@
       <button class="admin-tab" onclick="switchTab('portfolio',this)">🖼 작업물 관리</button>
       <button class="admin-tab" onclick="switchTab('store',this)">🛒 판매프로그램 관리</button>
       <button class="admin-tab" onclick="switchTab('reviews',this)">💬 고객 후기 관리</button>
+      <button class="admin-tab" onclick="switchTab('views',this)">📈 홈페이지 조회수</button>
     </div>
 
     <!-- 문의 패널 -->
@@ -306,6 +324,48 @@
       </div>
       <div class="review-list" id="reviewList">
         <div style="text-align:center;padding:40px;color:var(--muted)">불러오는 중...</div>
+      </div>
+    </div>
+
+    <div id="tab_views" class="tab-panel">
+      <div class="section-header">
+        <h3>홈페이지 조회수</h3>
+        <button class="add-btn" onclick="loadViewAnalytics()">새로고침</button>
+      </div>
+      <div class="view-cards">
+        <div class="view-card">
+          <div class="view-card-label">오늘</div>
+          <div class="view-card-value" id="viewsToday">0</div>
+          <div class="view-card-sub" id="viewsTodaySub">오늘 누적 조회수</div>
+        </div>
+        <div class="view-card">
+          <div class="view-card-label">어제</div>
+          <div class="view-card-value" id="viewsYesterday">0</div>
+          <div class="view-card-sub">전일 조회수</div>
+        </div>
+        <div class="view-card">
+          <div class="view-card-label">최근 7일</div>
+          <div class="view-card-value" id="viewsLast7Days">0</div>
+          <div class="view-card-sub">최근 7일 누적</div>
+        </div>
+        <div class="view-card">
+          <div class="view-card-label">최근 14일</div>
+          <div class="view-card-value" id="viewsLast14Days">0</div>
+          <div class="view-card-sub">차트 기준 누적</div>
+        </div>
+      </div>
+      <div class="view-panel">
+        <div class="view-panel-title">최근 14일 조회수 추이</div>
+        <div class="chart-wrap"><canvas id="viewsChart" width="900" height="280"></canvas></div>
+      </div>
+      <div class="view-panel">
+        <div class="view-panel-title">일자별 조회수</div>
+        <div class="table-wrap">
+          <table class="views-table">
+            <thead><tr><th>날짜</th><th>조회수</th><th>전일 대비</th></tr></thead>
+            <tbody id="viewsTableBody"><tr><td colspan="3" class="empty-state">불러오는 중...</td></tr></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -462,11 +522,12 @@
   </div>
 </div>
 
+<script src="views-analytics.js"></script>
 <script>
-var API_URL = 'https://script.google.com/macros/s/AKfycbyxFFyXgvrMHlBNNOU3u0rYSorHiTkdHPJgaGSvKLgdqmIjaKGdE61S2Q96qHkfPoQ/exec';
+var API_URL = 'https://script.google.com/macros/s/AKfycbyl_ijOSOLcNdnufDNkTByOqipSM6VwSYBIK7Eri1zv-HXsJMK4NGd1TWmUAevvMbo/exec';
 var ADMIN_PW = 'dev0922';
 var STAGES = ['접수중','접수완료','입금대기','입금완료','진행중','완료'];
-var allProjects = [], currentFilter = '전체', currentProject = null;
+var allProjects = [], currentFilter = '전체', currentProject = null, VIEW_ROWS = [];
 
 // ── 로그인 ──────────────────────────────────────────────────
 function login() {
@@ -494,6 +555,7 @@ function switchTab(name, btn) {
   if (name === 'portfolio') loadPortManage();
   if (name === 'store') loadStoreManage();
   if (name === 'reviews') loadReviewManage();
+  if (name === 'views') loadViewAnalytics();
 }
 
 // ── 문의 로드 ────────────────────────────────────────────────
@@ -510,6 +572,122 @@ function loadProjects() {
     .catch(function(e){
       document.getElementById('projectTable').innerHTML = '<tr><td colspan="7" class="empty-state">불러오기 실패: ' + e.message + '</td></tr>';
     });
+}
+
+function loadViewAnalytics() {
+  var table = document.getElementById('viewsTableBody');
+  if (table) table.innerHTML = '<tr><td colspan="3" class="empty-state">불러오는 중...</td></tr>';
+
+  fetch(API_URL + '?action=getIndexViews&days=30', { redirect:'follow' })
+    .then(function(r){ return r.text(); })
+    .then(function(t){
+      var d = JSON.parse(t);
+      if (d.result !== 'success') throw new Error(d.message || '조회수 데이터를 불러오지 못했습니다.');
+      VIEW_ROWS = d.items || [];
+      renderViewAnalytics(VIEW_ROWS);
+    })
+    .catch(function(e){
+      if (table) table.innerHTML = '<tr><td colspan="3" class="empty-state">조회수 로드 실패: ' + e.message + '</td></tr>';
+    });
+}
+
+function renderViewAnalytics(rows) {
+  if (!window.DevoraViews) return;
+  var summary = window.DevoraViews.summarizeRows(rows, { seriesDays: 14 });
+  document.getElementById('viewsToday').textContent = summary.todayViews;
+  document.getElementById('viewsYesterday').textContent = summary.yesterdayViews;
+  document.getElementById('viewsLast7Days').textContent = summary.last7DaysViews;
+  document.getElementById('viewsLast14Days').textContent = summary.last14DaysViews;
+  var delta = summary.todayViews - summary.yesterdayViews;
+  document.getElementById('viewsTodaySub').textContent = '어제 대비 ' + (delta > 0 ? '+' + delta : String(delta));
+  renderViewsTable(summary.rows);
+  drawViewsChart(summary.chartRows);
+}
+
+function renderViewsTable(rows) {
+  var table = document.getElementById('viewsTableBody');
+  if (!rows.length) {
+    table.innerHTML = '<tr><td colspan="3" class="empty-state">조회수 데이터가 없습니다.</td></tr>';
+    return;
+  }
+
+  var reversed = rows.slice().reverse();
+  table.innerHTML = reversed.map(function(row, idx) {
+    var prev = reversed[idx + 1];
+    var delta = prev ? row.views - prev.views : 0;
+    var cls = delta > 0 ? 'delta-up' : (delta < 0 ? 'delta-down' : 'delta-flat');
+    var deltaText = prev ? (delta > 0 ? '+' + delta : String(delta)) : '-';
+    return '<tr><td>' + row.date + '</td><td>' + row.views + '</td><td class="' + cls + '">' + deltaText + '</td></tr>';
+  }).join('');
+}
+
+function drawViewsChart(rows) {
+  var canvas = document.getElementById('viewsChart');
+  if (!canvas || !canvas.getContext) return;
+  var ctx = canvas.getContext('2d');
+  var width = canvas.width;
+  var height = canvas.height;
+  var padding = { top: 24, right: 20, bottom: 36, left: 36 };
+  var innerWidth = width - padding.left - padding.right;
+  var innerHeight = height - padding.top - padding.bottom;
+  var maxViews = rows.reduce(function(max, row) { return Math.max(max, row.views); }, 0);
+  var yMax = Math.max(5, maxViews);
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, width, height);
+  ctx.strokeStyle = 'rgba(21,101,192,0.12)';
+  ctx.lineWidth = 1;
+  for (var i = 0; i < 4; i++) {
+    var y = padding.top + (innerHeight / 3) * i;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(width - padding.right, y);
+    ctx.stroke();
+  }
+  if (!rows.length) return;
+
+  var points = rows.map(function(row, idx) {
+    var x = padding.left + (rows.length === 1 ? innerWidth / 2 : (innerWidth / (rows.length - 1)) * idx);
+    var y = padding.top + innerHeight - ((row.views / yMax) * innerHeight);
+    return { x: x, y: y, date: row.date, views: row.views };
+  });
+
+  var gradient = ctx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+  gradient.addColorStop(0, 'rgba(21,101,192,0.26)');
+  gradient.addColorStop(1, 'rgba(21,101,192,0.02)');
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, height - padding.bottom);
+  points.forEach(function(point) { ctx.lineTo(point.x, point.y); });
+  ctx.lineTo(points[points.length - 1].x, height - padding.bottom);
+  ctx.closePath();
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  ctx.beginPath();
+  points.forEach(function(point, idx) {
+    if (idx === 0) ctx.moveTo(point.x, point.y);
+    else ctx.lineTo(point.x, point.y);
+  });
+  ctx.strokeStyle = '#1565C0';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.fillStyle = '#1565C0';
+  points.forEach(function(point, idx) {
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, idx === points.length - 1 ? 5 : 4, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  ctx.fillStyle = '#5a7a9a';
+  ctx.font = '11px Noto Sans KR';
+  ctx.textAlign = 'center';
+  points.forEach(function(point, idx) {
+    if (idx === 0 || idx === points.length - 1 || idx % 3 === 0) {
+      ctx.fillText(point.date.slice(5), point.x, height - 14);
+    }
+  });
 }
 
 function renderStats() {

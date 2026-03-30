@@ -1739,6 +1739,7 @@
   <span>카카오 상담</span>
 </a>
 
+<script src="views-analytics.js"></script>
 <script>
   // ── 맨 위로 버튼 스크롤 감지 ────────────────────────────
   var scrollTopBtn = document.getElementById('scrollTopBtn');
@@ -2074,8 +2075,17 @@
     document.getElementById('reviewsGrid').innerHTML = html;
   }
 
+  function trackIndexViewOncePerDay() {
+    if (!window.DevoraViews) return;
+    var today = window.DevoraViews.getTodayKst();
+    if (!window.DevoraViews.shouldTrackToday(window.localStorage, today)) return;
+    window.DevoraViews.markTrackedToday(window.localStorage, today);
+    fetch(SHEET_URL + '?action=trackIndexView&date=' + encodeURIComponent(today), { redirect: 'follow' }).catch(function(){});
+  }
+
   // DOMContentLoaded → 포트폴리오/후기 로드
   document.addEventListener('DOMContentLoaded', function() {
+    trackIndexViewOncePerDay();
     loadPortfolio();
     loadReviews();
   });
@@ -2084,7 +2094,7 @@
     if (e.key === 'Escape') { closePortModal(); }
   });
 
-  var SHEET_URL = 'https://script.google.com/macros/s/AKfycbyxFFyXgvrMHlBNNOU3u0rYSorHiTkdHPJgaGSvKLgdqmIjaKGdE61S2Q96qHkfPoQ/exec';
+  var SHEET_URL = 'https://script.google.com/macros/s/AKfycbyl_ijOSOLcNdnufDNkTByOqipSM6VwSYBIK7Eri1zv-HXsJMK4NGd1TWmUAevvMbo/exec';
 
   function submitForm(e) {
     e.preventDefault();
